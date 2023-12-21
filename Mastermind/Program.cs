@@ -1,63 +1,22 @@
-﻿IEnumerable<string> foo = GenerierePermutationen("1233");
-Console.WriteLine(string.Concat(foo.Select(x=>x+" ")));
+﻿using Mastermind;
+using System.ComponentModel.Design.Serialization;
 
-Generiere(2013, 2);
- static void Generiere(int zuErrateneZahl, int anzahlDerHinweise)
+
+Row[] rows = new Row[]
 {
-    var zuErrateneZahlString = zuErrateneZahl.ToString();
-    var möglicheZahlen = GenerierePermutationen(zuErrateneZahlString).ToList();
-    var hinweise = new List<(int zahl, int richtig, int falsch)>();
+    new Row(new ushort[] { 0, 1, 2, 3 }, 1, 1),
+    new Row(new ushort[] { 4, 5, 6, 7 }, 0, 1),
+    new Row(new ushort[] { 8, 9, 0,1 }, 0, 1),
+    new Row(new ushort[] { 5, 4, 0,3 }, 0, 2)
+};
 
-    while (hinweise.Count < anzahlDerHinweise && möglicheZahlen.Count > 1)
-    {
-        var index = new Random().Next(möglicheZahlen.Count);
-        var ausgewählteZahl = möglicheZahlen[index];
-        var hinweis = BerechneHinweis(zuErrateneZahlString, ausgewählteZahl);
 
-        hinweise.Add((int.Parse(ausgewählteZahl), hinweis.richtig, hinweis.falsch));
-        möglicheZahlen = FilterMöglicheZahlen(möglicheZahlen, hinweis, ausgewählteZahl);
-    }
+Game game = new Game();
 
-    // Ergebnisse ausgeben
-    foreach (var hinweis in hinweise)
-    {
-        Console.WriteLine($"{hinweis.zahl} ({hinweis.richtig},{hinweis.falsch})");
-    }
-}
+Hints hint = new Hints(rows.ToArray());
+var solutions = game.Solve(hint);
 
- static IEnumerable<string> GenerierePermutationen(string zahl)
-{
-    return zahl.Length == 1 ? new List<string> { zahl } :
-           zahl.Select((e, i) => GenerierePermutationen(zahl.Substring(0, i) + zahl.Substring(i + 1))
-               .Select(s => e + s))
-               .SelectMany(x => x).Distinct();
-}
+foreach (ushort[] solution in solutions)
+    Console.WriteLine(string.Concat(solution.Select(x => x.ToString())));
 
- static (int richtig, int falsch) BerechneHinweis(string zuErrateneZahl, string zahlString)
-{
-    var richtigPositioniert = 0;
-    var falschPositioniert = 0;
-
-    for (int i = 0; i < zuErrateneZahl.Length; i++)
-    {
-        if (zuErrateneZahl[i] == zahlString[i])
-        {
-            richtigPositioniert++;
-        }
-        else if (zuErrateneZahl.Contains(zahlString[i]) && zahlString.Count(c => c == zahlString[i]) < zuErrateneZahl.Count(c => c == zahlString[i]))
-        {
-            falschPositioniert++;
-        }
-    }
-
-    return (richtigPositioniert, falschPositioniert);
-}
-
- static List<string> FilterMöglicheZahlen(List<string> möglicheZahlen, (int richtig, int falsch) hinweis, string hinweisZahl)
-{
-    return möglicheZahlen.Where(zahl =>
-    {
-        var prüfHinweis = BerechneHinweis(hinweisZahl, zahl);
-        return prüfHinweis.richtig == hinweis.richtig && prüfHinweis.falsch == hinweis.falsch;
-    }).ToList();
-}
+Console.WriteLine("");

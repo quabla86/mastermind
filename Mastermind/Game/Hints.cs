@@ -1,22 +1,31 @@
-﻿namespace Mastermind
+﻿using System.Linq;
+
+namespace Mastermind.Game
 {
     public class Hints
     {
-        public readonly Row[] Rows;
+        private readonly Hint[] _rows;
         public readonly int RowDigitCount;
 
-        public Hints(Row[] rows)
+        public IReadOnlyList<Hint> Rows => _rows;
+
+        public Hints(IEnumerable<Hint> rows) : this(rows.ToArray())
         {
+
+        }
+        public Hints(IReadOnlyList<Hint> rows)
+        {
+            _rows = rows.ToArray();
             var rowLength = rows.Select(row => row.Digits.Length).Distinct().ToList();
-            
+
             if (rowLength.Count > 1)
                 throw new ArgumentException("all rows must have the same count of digits");
-            Rows = rows;
+
             RowDigitCount = rowLength.FirstOrDefault();
         }
         public bool Matches(ushort[] guessPhrase)
         {
-            return Rows.All(row => row.DoesPhraseMath(guessPhrase));
+            return Rows.All(row => row.DoesPhraseMatch(guessPhrase));
         }
     }
 }

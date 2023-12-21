@@ -1,20 +1,19 @@
-﻿using Mastermind;
-using System.ComponentModel.Design.Serialization;
+﻿using Mastermind.Game;
+using System.Text;
 
-
-Row[] rows = new Row[]
+Console.WriteLine("Enter Hints:");
+string line;
+StringBuilder inputBuilder = new StringBuilder();
+while( (line = Console.ReadLine()) != String.Empty)
 {
-    new Row(new ushort[] { 0, 1, 2, 3 }, 1, 1),
-    new Row(new ushort[] { 4, 5, 6, 7 }, 0, 1),
-    new Row(new ushort[] { 8, 9, 0,1 }, 0, 1),
-    new Row(new ushort[] { 5, 4, 0,3 }, 0, 2)
-};
+    inputBuilder.AppendLine(line);
+}
 
+var parseService = new InputParseService();
+Hints hints = parseService.ParseHints(inputBuilder.ToString());
 
 Game game = new Game();
-
-Hints hint = new Hints(rows.ToArray());
-var solutions = game.Solve(hint);
+var solutions = game.Solve(hints);
 
 foreach (ushort[] solution in solutions)
     Console.WriteLine(string.Concat(solution.Select(x => x.ToString())));

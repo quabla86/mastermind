@@ -5,7 +5,7 @@ namespace Mastermind.Game
     public class Hints
     {
         private readonly Hint[] _rows;
-        public readonly int Count;
+        public readonly int DigitCount;
 
         public IReadOnlyList<Hint> Rows => _rows;
 
@@ -21,11 +21,16 @@ namespace Mastermind.Game
             if (rowLength.Count > 1)
                 throw new ArgumentException("all rows must have the same count of digits");
 
-            Count = rowLength.FirstOrDefault();
+            DigitCount = rowLength.FirstOrDefault();
         }
         public bool Matches(ushort[] guessPhrase)
         {
-            return Rows.All(row => row.DoesPhraseMatch(guessPhrase));
+            foreach (var hint in _rows)
+            {
+                if(!hint.DoesPhraseMatch(guessPhrase)) 
+                    return false;
+            }
+            return true;
         }
     }
 }

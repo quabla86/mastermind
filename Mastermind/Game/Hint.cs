@@ -61,17 +61,21 @@ namespace Mastermind.Game
                     isPhrasePositionEvaluated[iPhrase] = true;
                 }
             }
+            if(correctCount!=CorrectCount)
+                return false;
 
-            IEnumerable<int> notEvaluatedPhrasePositions = Enumerable.Range(0, digitCount)
-                .Where(iPhrase => !isPhrasePositionEvaluated[iPhrase]);
-            
-            foreach (var iPhrase in notEvaluatedPhrasePositions)
+
+            for (int iPhrase = 0; iPhrase < digitCount; iPhrase ++ )
             {
+                if (isPhrasePositionEvaluated[iPhrase])
+                    continue;
+
                 ushort currPhraseDigit = guessPhrase[iPhrase];
-                IEnumerable<int> notEvaluatedDigitPositions = Enumerable.Range(0, digitCount).Where(iDigit => !isDigitPositionEvaluated[iDigit]);
-                
-                foreach (var iDigit in notEvaluatedDigitPositions)
+                for (int iDigit = 0; iDigit < digitCount; iDigit++)
                 {
+                    if (isDigitPositionEvaluated[iDigit])
+                        continue;
+
                     ushort currDigit = Digits[iDigit];
 
                     if (currPhraseDigit != currDigit)
@@ -81,8 +85,10 @@ namespace Mastermind.Game
                     correctoccurence++;
                     break;
                 }
+                if(correctoccurence> Correctoccurence)
+                    return false;
             }
-            return correctCount == CorrectCount && correctoccurence == Correctoccurence;
+            return correctoccurence == Correctoccurence;
         }
     }
 

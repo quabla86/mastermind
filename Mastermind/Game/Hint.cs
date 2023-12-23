@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,8 @@ namespace Mastermind.Game
         /// </summary>
         public readonly ushort[] Digits;
 
+        public int DigitCount { get; }
+
         /// <summary>
         /// Count of Digits that are at the correct Position in the Guessphrase
         /// </summary>
@@ -27,6 +30,7 @@ namespace Mastermind.Game
         public Hint(ushort[] digits, int correctCount, int correctoccurence)
         {
             Digits = digits;
+            DigitCount = Digits.Length;
             CorrectCount = correctCount;
             Correctoccurence = correctoccurence;
         }
@@ -41,39 +45,37 @@ namespace Mastermind.Game
         /// </summary>
         public bool DoesPhraseMatch(ushort[] guessPhrase)
         {
-            int digitCount = Digits.Length;
-            if (digitCount != guessPhrase.Length)
-                throw new ArgumentException("the phrase length must math the digits length");
+            if (DigitCount != guessPhrase.Length)
+                throw new ArgumentException("The phrase length must match the digits length");
 
-            bool[] isDigitPositionEvaluated = new bool[digitCount];
-            bool[] isPhrasePositionEvaluated = new bool[digitCount];
-            
+            ushort isDigitPositionEvaluated = 0;
+            ushort isPhrasePositionEvaluated = 0;
+
             int correctCount = 0;
             int correctoccurence = 0;
 
-            for (int iPhrase = 0; iPhrase < digitCount; iPhrase++)
+            for (int iPhrase = 0; iPhrase < DigitCount; iPhrase++)
             {
                 ushort currPhraseDigit = guessPhrase[iPhrase];
                 if (currPhraseDigit == Digits[iPhrase])
                 {
                     correctCount++;
-                    isDigitPositionEvaluated[iPhrase] = true;
-                    isPhrasePositionEvaluated[iPhrase] = true;
+                    isDigitPositionEvaluated |= (ushort)(1 << iPhrase);
+                    isPhrasePositionEvaluated |= (ushort)(1 << iPhrase);
                 }
             }
-            if(correctCount!=CorrectCount)
+            if (correctCount != CorrectCount)
                 return false;
 
-
-            for (int iPhrase = 0; iPhrase < digitCount; iPhrase ++ )
+            for (int iPhrase = 0; iPhrase < DigitCount; iPhrase++)
             {
-                if (isPhrasePositionEvaluated[iPhrase])
+                if ((isPhrasePositionEvaluated & (1 << iPhrase)) != 0)
                     continue;
 
                 ushort currPhraseDigit = guessPhrase[iPhrase];
-                for (int iDigit = 0; iDigit < digitCount; iDigit++)
+                for (int iDigit = 0; iDigit < DigitCount; iDigit++)
                 {
-                    if (isDigitPositionEvaluated[iDigit])
+                    if ((isDigitPositionEvaluated & (1 << iDigit)) != 0)
                         continue;
 
                     ushort currDigit = Digits[iDigit];
@@ -81,11 +83,11 @@ namespace Mastermind.Game
                     if (currPhraseDigit != currDigit)
                         continue;
 
-                    isDigitPositionEvaluated[iDigit] = true;
+                    isDigitPositionEvaluated |= (ushort)(1 << iDigit);
                     correctoccurence++;
                     break;
                 }
-                if(correctoccurence> Correctoccurence)
+                if (correctoccurence > Correctoccurence)
                     return false;
             }
             return correctoccurence == Correctoccurence;

@@ -25,7 +25,12 @@ namespace Mastermind.Game
         }
         public bool Matches(ushort[] guessPhrase)
         {
-            return Rows.All(row => row.DoesPhraseMatch(guessPhrase));
+            foreach (var hint in _rows)
+            {
+                if(!hint.DoesPhraseMatch(guessPhrase)) 
+                    return false;
+            }
+            return true;
         }
     }
 }
